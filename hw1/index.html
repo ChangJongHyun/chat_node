@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>chat</title>
+    <style>
+        #chat_log {
+            width: 90%;
+            height: 350px;
+        }
+
+        #chat {
+            width: 90%;
+            height: 10%;
+        }
+
+        #id_box {
+            width: 25%;
+            height: 100%;
+        }
+
+        #msg {
+            width: 60%;
+            height: 100%;
+        }
+
+        #enter {
+            width: 10%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<textarea id="chat_log" readonly></textarea>
+<div id="chat">
+    <input id="id_box" readonly>
+    <input id="msg">
+    <button id="enter" onclick="chat()">chat</button>
+</div>
+</body>
+<script>
+
+    var input = prompt("아이디를 입력하세요.");
+    document.getElementById('id_box').value = input;
+    var chat_log = document.getElementById('chat_log');
+    var msg = document.getElementById('msg');
+
+    var chat = function () {
+        if (msg.value !== "") {
+            chat_log.append(input + ": " + msg.value + "\n");
+            msg.value = "";
+        }
+    };
+
+    window.onkeydown = function () {
+        if (window.event.keyCode === 13)
+            chat();
+    }
+
+</script>
+</html>
