@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>chat</title>
+    <style>
+        #chat_log {
+            width: 90%;
+            height: 350px;
+        }
+
+        #chat {
+            width: 90%;
+            height: 10%;
+        }
+
+        #id_box {
+            width: 25%;
+            height: 100%;
+        }
+
+        #msg {
+            width: 60%;
+            height: 100%;
+        }
+
+        #enter {
+            width: 10%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<textarea id="chat_log" readonly></textarea>
+<div id="chat">
+    <input id="id_box" readonly>
+    <input id="msg">
+    <button id="enter" onclick="chat()">chat</button>
+</div>
+</body>
+<script>
+    var socket = io();
+
+    var input = prompt("아이디를 입력하세요.");
+    document.getElementById('id_box').value = input;
+
+    socket.emit('login', input);
+
+    var chat_log = document.getElementById('chat_log');
+    var msg = document.getElementById('msg');
+
+    var chat = function () {
+        if (msg.value !== "") {
+            socket.emit('send msg',input, msg.value);
+            msg.value = "";
+        }
+    };
+
+    window.onkeydown = function () {
+        if (window.event.keyCode === 13)
+            chat();
+    };
+
+    window.onunload = function () {
+        socket.emit('logout', input);
+    };
+
+    socket.on('enter', function (id) {
+        chat_log.append(id + "님이(가) 입장하였습니다.\n");
+    });
+    socket.on('exit', function (id) {
+        chat_log.append(id + "님이(가) 나갔습니다.\n");
+    });
+    socket.on('receive msg', function (msg) {
+        chat_log.append(msg);
+    });
+
+</script>
+</html>

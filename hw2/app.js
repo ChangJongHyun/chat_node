@@ -1,11 +1,17 @@
-var http = require('http');
+var app = require('http').createServer(handler);
 var path = require('path');
 var url = require('url');
 var fs = require('fs');
 
+var io = require('socket.io')(app);
+
 var port = 8080;
 
-var server = http.createServer(function (req, res) {
+app.listen(port, function (req, res) {
+    console.log('server running at ' + port);
+});
+
+function handler (req, res) {
 
     var pathname = url.parse(req.url).pathname;
 
@@ -15,14 +21,8 @@ var server = http.createServer(function (req, res) {
     fs.readFile(pathname.substr(1), function (err, data) {
         if (err) {
             console.log(err);
-            // 페이지를 찾을 수 없음
-            // HTTP Status: 404 : NOT FOUND
-            // Content Type: text/plain
             res.writeHead(404, {'Content-Type': 'text/html'});
         }else{
-            // 페이지를 찾음
-            // HTTP Status: 200 : OK
-            // Content Type: text/plain
             res.writeHead(200, {'Content-Type': 'text/html'});
 
             // 파일을 읽어와서 responseBody 에 작성
@@ -30,8 +30,18 @@ var server = http.createServer(function (req, res) {
         }
         // responseBody 전송
         res.end();
+    });}
+
+io.on('connection', function (socket) {
+    socket.on('login', function (id) {
+        io.emit('enter', id);
     });
-}).listen(8080, function() {
-    console.log('Server is running');
+    socket.on('logout', function (id) {
+        io.emit('exit', id);
+    });
+    socket.on('send msg', function (id, msg) {
+        var text = id + ": " + msg + "\n";
+        io.emit('receive msg', text);
+    });
 });
 
